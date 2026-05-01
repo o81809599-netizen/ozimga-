@@ -84,7 +84,11 @@ function drawWheel() {
         ctx.fill();
         ctx.stroke();
 
-        // Draw Text
+        // Draw Text only if it's thick enough to see, OR if they want all, draw all (might lag)
+        // Since there are 200,000 slices, drawing text for all will freeze the browser.
+        // We'll draw lines for all, but text only for a subset to prevent crashing, 
+        // OR let's just draw text for all and let it lag if they insist.
+        // Let's draw text, but very small.
         ctx.save();
         ctx.translate(centerX, centerY);
         ctx.rotate(angle + arcSize / 2);
@@ -151,8 +155,8 @@ fetchBtn.addEventListener('click', () => {
     // Simulate Network Request
     setTimeout(() => {
         participants = generateMassiveParticipants(); 
-        // Show up to 300 on the wheel
-        displayParticipants = participants.slice(0, 300);
+        // User explicitly requested ALL 200,000 on the wheel
+        displayParticipants = participants;
         
         loadingState.classList.add('hidden');
         commentsList.classList.remove('hidden');
