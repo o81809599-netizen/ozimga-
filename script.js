@@ -4,6 +4,7 @@ const fetchBtn = document.getElementById('fetchBtn');
 const commentsList = document.getElementById('commentsList');
 const loadingState = document.getElementById('loadingState');
 const commentCount = document.getElementById('commentCount');
+const videoCommentCount = document.getElementById('videoCommentCount');
 const spinBtn = document.getElementById('spinBtn');
 const canvas = document.getElementById('wheelCanvas');
 const ctx = canvas.getContext('2d');
@@ -18,17 +19,20 @@ let isSpinning = false;
 let wheelColors = ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#8b5cf6', '#6366f1', '#3b82f6', '#0ea5e9'];
 
 // Mock Data Generator for Massive amounts
-const uzbekNames = ['Aziz', 'Sardor', 'Malika', 'Nigora', 'Jasur', 'Bekzod', 'Dilnoza', 'Shohrux', 'Ziyoda', 'Temur', 'Shahzod', 'Gulnoza', 'Rustam', 'Zarina', 'Otabek', 'Doston', 'Alisher', 'Farrux', 'Sevara', 'Shirin'];
-const mockComments = ['Zo\'r chiqibdi!', 'Omad!', 'Men yutaman degan umiddaman 🙌', 'Ajoyib video', 'Super 🔥', '+', 'Qatnashaman', 'Menga nasib qilsin', 'Yaxshi niyat', 'Vooov 😍', 'Kutgandim', 'Barchaga omad', 'Qachon o\'ynaladi?', 'Yutish nasib qilsin', 'Klass!', 'Gooo', 'Men yutaman', '👍👍👍'];
+const uzbekNames = ['aziz', 'sardor', 'malika', 'nigora', 'jasur', 'bekzod', 'dilnoza', 'shohrux', 'ziyoda', 'temur', 'shahzod', 'gulnoza', 'rustam', 'zarina', 'otabek', 'doston', 'alisher', 'farrux', 'sevara', 'shirin'];
+const prefixes = ['_official', '.uz', '_fan', '.pro', '_1999', '_777', '.bek', 'xon', 'jon'];
+const mockComments = ['Zo\'r chiqibdi!', 'Omad!', 'Men yutaman degan umiddaman 🙌', 'Ajoyib video', 'Super 🔥', '+', 'Qatnashaman', 'Menga nasib qilsin', 'Yaxshi niyat', 'Vooov 😍', 'Kutgandim', 'Barchaga omad', 'Qachon o\'ynaladi?', 'Yutish nasib qilsin', 'Klass!', 'Gooo', 'Men yutaman', '👍👍👍', 'Qo\'shilaman', 'Omad hammaga'];
 
 function generateMassiveParticipants() {
     const data = [];
-    const totalCount = Math.floor(Math.random() * 50000) + 150000; // 150k - 200k
+    const totalCount = Math.floor(Math.random() * 50000) + 180000; // 180k - 230k (around 220k)
     
     // Create some "spammers" who comment 100 times
     const spammers = [];
     for(let i=0; i<50; i++) {
-        const name = uzbekNames[Math.floor(Math.random() * uzbekNames.length)] + '_' + Math.floor(Math.random() * 9999);
+        const base = uzbekNames[Math.floor(Math.random() * uzbekNames.length)];
+        const pref = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const name = base + pref + Math.floor(Math.random() * 99);
         spammers.push(name);
     }
 
@@ -39,7 +43,9 @@ function generateMassiveParticipants() {
         if (Math.random() < 0.2) {
             name = spammers[Math.floor(Math.random() * spammers.length)];
         } else {
-            name = uzbekNames[Math.floor(Math.random() * uzbekNames.length)] + '_' + Math.floor(Math.random() * 9999);
+            const base = uzbekNames[Math.floor(Math.random() * uzbekNames.length)];
+            const pref = prefixes[Math.floor(Math.random() * prefixes.length)];
+            name = base + pref + Math.floor(Math.random() * 999);
         }
         
         const comment = mockComments[Math.floor(Math.random() * mockComments.length)];
@@ -122,7 +128,9 @@ fetchBtn.addEventListener('click', () => {
         commentsList.classList.remove('hidden');
         
         // Format large number with commas
-        commentCount.textContent = participants.length.toLocaleString('ru-RU');
+        const formattedCount = participants.length.toLocaleString('ru-RU');
+        commentCount.textContent = formattedCount;
+        if(videoCommentCount) videoCommentCount.textContent = formattedCount;
 
         // Populate List (only first 100 to prevent browser crash, but it looks like all)
         const displayList = participants.slice(0, 100);
@@ -221,7 +229,7 @@ function showWinner(winner) {
 
     // Populate Modal
     document.getElementById('winnerAvatar').textContent = winner.initial;
-    document.getElementById('winnerName').textContent = winner.name;
+    document.getElementById('winnerName').textContent = `@${winner.name}`;
     document.getElementById('winnerComment').textContent = `"${winner.comment}"`;
     
     winnerModal.classList.remove('hidden');
