@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odilxon - Premium Randomizer Baraban</title>
+    <!-- Google SEO uchun maxsus teglar -->
+    <meta name="description" content="Odilxon - Instagram, Telegram va TikTok uchun eng zo'r tasodifiy g'olibni aniqlash (Randomizer Baraban) xizmati.">
+    <meta name="keywords" content="odilxon, oodilxon, random, baraban, g'olibni aniqlash, randomizer, instagram g'olib, tiktok random">
+    <meta name="author" content="Odilxon">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <div class="background-animation">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="glass-panel text-center">
+            <h1>🏆 Premium Randomizer</h1>
+            <p>Instagram, Telegram yoki TikTok havolasini kiriting va g'olibni aniqlang!</p>
+            <div class="input-group">
+                <input type="text" id="postUrl" placeholder="https://instagram.com/p/..." autocomplete="off">
+                <button id="fetchBtn" class="btn primary-btn">Izohlarni olish</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Comments Section -->
+            <aside class="comments-section glass-panel">
+                <h2>💬 Izohlar (<span id="commentCount">0</span>)</h2>
+                <div class="loading-state hidden" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>Izohlar yuklanmoqda...</p>
+                </div>
+                <div class="comments-list" id="commentsList">
+                    <div class="empty-state">
+                        Havolani kiriting va "Izohlarni olish" tugmasini bosing
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Wheel Section -->
+            <section class="wheel-section glass-panel">
+                <div class="wheel-container">
+                    <div class="wheel-pointer">▼</div>
+                    <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                    <button id="spinBtn" class="spin-btn" disabled>SPIN</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Winner Modal -->
+    <div class="modal-overlay hidden" id="winnerModal">
+        <div class="modal-content glass-panel">
+            <h2>🎉 Tabriklaymiz! 🎉</h2>
+            <div class="winner-info">
+                <div class="winner-avatar" id="winnerAvatar"></div>
+                <h3 id="winnerName">Ism</h3>
+                <p class="winner-comment" id="winnerComment">"Izoh matni..."</p>
+            </div>
+            <button id="closeModalBtn" class="btn primary-btn mt-4">Yopish</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
