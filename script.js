@@ -84,18 +84,15 @@ function drawWheel() {
         ctx.fill();
         ctx.stroke();
 
-        // Draw Text only if it's thick enough to see, OR if they want all, draw all (might lag)
-        // Since there are 200,000 slices, drawing text for all will freeze the browser.
-        // We'll draw lines for all, but text only for a subset to prevent crashing, 
-        // OR let's just draw text for all and let it lag if they insist.
-        // Let's draw text, but very small.
+        // Draw Text (Name + Comment) on the wheel
         ctx.save();
         ctx.translate(centerX, centerY);
         ctx.rotate(angle + arcSize / 2);
         ctx.textAlign = 'right';
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 12px Outfit';
-        ctx.fillText(p.name, radius - 20, 4);
+        ctx.font = 'bold 8px Outfit'; // Made font smaller to fit comment
+        // Outputting the nickname and the comment on the wheel as requested
+        ctx.fillText(`@${p.name}: ${p.comment}`, radius - 10, 3);
         ctx.restore();
     });
 }
