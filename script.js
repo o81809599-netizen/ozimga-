@@ -12,32 +12,50 @@ const closeModalBtn = document.getElementById('closeModalBtn');
 
 // Variables
 let participants = [];
+let displayParticipants = [];
 let currentRotation = 0;
 let isSpinning = false;
 let wheelColors = ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#8b5cf6', '#6366f1', '#3b82f6', '#0ea5e9'];
 
-// Mock Data Generator
-const uzbekNames = ['Aziz', 'Sardor', 'Malika', 'Nigora', 'Jasur', 'Bekzod', 'Dilnoza', 'Shohrux', 'Ziyoda', 'Temur', 'Shahzod', 'Gulnoza', 'Rustam', 'Zarina', 'Otabek'];
-const mockComments = ['Zo\'r chiqibdi!', 'Omad!', 'Men yutaman degan umiddaman 🙌', 'Ajoyib video', 'Super 🔥', '+', 'Qatnashaman', 'Menga nasib qilsin', 'Yaxshi niyat', 'Vooov 😍', 'Kutgandim', 'Barchaga omad', 'Qachon o\'ynaladi?', 'Yutish nasib qilsin', 'Klass!'];
+// Mock Data Generator for Massive amounts
+const uzbekNames = ['Aziz', 'Sardor', 'Malika', 'Nigora', 'Jasur', 'Bekzod', 'Dilnoza', 'Shohrux', 'Ziyoda', 'Temur', 'Shahzod', 'Gulnoza', 'Rustam', 'Zarina', 'Otabek', 'Doston', 'Alisher', 'Farrux', 'Sevara', 'Shirin'];
+const mockComments = ['Zo\'r chiqibdi!', 'Omad!', 'Men yutaman degan umiddaman 🙌', 'Ajoyib video', 'Super 🔥', '+', 'Qatnashaman', 'Menga nasib qilsin', 'Yaxshi niyat', 'Vooov 😍', 'Kutgandim', 'Barchaga omad', 'Qachon o\'ynaladi?', 'Yutish nasib qilsin', 'Klass!', 'Gooo', 'Men yutaman', '👍👍👍'];
 
-function generateMockParticipants(count = 20) {
+function generateMassiveParticipants() {
     const data = [];
-    for (let i = 0; i < count; i++) {
-        const name = uzbekNames[Math.floor(Math.random() * uzbekNames.length)] + '_' + Math.floor(Math.random() * 999);
+    const totalCount = Math.floor(Math.random() * 50000) + 150000; // 150k - 200k
+    
+    // Create some "spammers" who comment 100 times
+    const spammers = [];
+    for(let i=0; i<50; i++) {
+        const name = uzbekNames[Math.floor(Math.random() * uzbekNames.length)] + '_' + Math.floor(Math.random() * 9999);
+        spammers.push(name);
+    }
+
+    // Fill array
+    for (let i = 0; i < totalCount; i++) {
+        let name = "";
+        // 20% chance it's a spammer
+        if (Math.random() < 0.2) {
+            name = spammers[Math.floor(Math.random() * spammers.length)];
+        } else {
+            name = uzbekNames[Math.floor(Math.random() * uzbekNames.length)] + '_' + Math.floor(Math.random() * 9999);
+        }
+        
         const comment = mockComments[Math.floor(Math.random() * mockComments.length)];
         data.push({ name, comment, initial: name.charAt(0).toUpperCase() });
     }
     return data;
 }
 
-// Draw Wheel
+// Draw Wheel (Limit to 100 slices so browser doesn't crash)
 function drawWheel() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const radius = canvas.width / 2;
 
-    if (participants.length === 0) {
+    if (displayParticipants.length === 0) {
         // Draw empty wheel
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
@@ -48,9 +66,9 @@ function drawWheel() {
         return;
     }
 
-    const arcSize = (2 * Math.PI) / participants.length;
+    const arcSize = (2 * Math.PI) / displayParticipants.length;
 
-    participants.forEach((p, i) => {
+    displayParticipants.forEach((p, i) => {
         const angle = i * arcSize;
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
@@ -65,8 +83,8 @@ function drawWheel() {
         ctx.rotate(angle + arcSize / 2);
         ctx.textAlign = 'right';
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 16px Outfit';
-        ctx.fillText(p.name, radius - 20, 5);
+        ctx.font = 'bold 12px Outfit';
+        ctx.fillText(p.name, radius - 20, 4);
         ctx.restore();
     });
 }
@@ -89,20 +107,26 @@ fetchBtn.addEventListener('click', () => {
     spinBtn.disabled = true;
     commentCount.textContent = '0';
     participants = [];
+    displayParticipants = [];
     drawWheel();
     canvas.style.transform = `rotate(0deg)`;
     currentRotation = 0;
 
     // Simulate Network Request
     setTimeout(() => {
-        participants = generateMockParticipants(Math.floor(Math.random() * 20) + 10); // 10-30 participants
+        participants = generateMassiveParticipants(); 
+        // Only show up to 80 on the wheel so it doesn't look like a solid color
+        displayParticipants = participants.slice(0, 80);
         
         loadingState.classList.add('hidden');
         commentsList.classList.remove('hidden');
-        commentCount.textContent = participants.length;
+        
+        // Format large number with commas
+        commentCount.textContent = participants.length.toLocaleString('ru-RU');
 
-        // Populate List
-        participants.forEach((p, i) => {
+        // Populate List (only first 100 to prevent browser crash, but it looks like all)
+        const displayList = participants.slice(0, 100);
+        displayList.forEach((p, i) => {
             setTimeout(() => {
                 const div = document.createElement('div');
                 div.className = 'comment-item';
@@ -114,12 +138,20 @@ fetchBtn.addEventListener('click', () => {
                     </div>
                 `;
                 commentsList.appendChild(div);
-            }, i * 100); // Staggered animation
+            }, i * 50); // Fast staggered animation
         });
+
+        // Add a "..." item at the end
+        setTimeout(() => {
+            const div = document.createElement('div');
+            div.className = 'empty-state';
+            div.innerHTML = `... va yana ${(participants.length - 100).toLocaleString('ru-RU')} ta izoh`;
+            commentsList.appendChild(div);
+        }, 100 * 50);
 
         drawWheel();
         spinBtn.disabled = false;
-    }, 2000);
+    }, 3000); // 3 seconds loading to feel real
 });
 
 // Spin Logic
@@ -131,14 +163,20 @@ spinBtn.addEventListener('click', () => {
     fetchBtn.disabled = true;
 
     // Calculate rotation
-    const spins = 5; // number of full rotations
-    const sliceAngle = 360 / participants.length;
+    const spins = 10; // number of full rotations (more spins for excitement)
+    const sliceAngle = 360 / displayParticipants.length;
     
-    // Choose winner randomly
+    // Choose winner randomly from the FULL massive array
     const winnerIndex = Math.floor(Math.random() * participants.length);
+    const winner = participants[winnerIndex];
+
+    // Force the winner to be injected into the display wheel if not there
+    let displayIndex = Math.floor(Math.random() * displayParticipants.length);
+    displayParticipants[displayIndex] = winner;
+    drawWheel(); // redraw to ensure winner is on the wheel
     
     // Calculate final rotation degrees
-    const stopAngle = winnerIndex * sliceAngle + (sliceAngle / 2);
+    const stopAngle = displayIndex * sliceAngle + (sliceAngle / 2);
     // Add multiple 360s + offset to land on winner
     const totalRotation = currentRotation + (360 * spins) + (360 - stopAngle) - (currentRotation % 360) - 90;
 
@@ -150,7 +188,7 @@ spinBtn.addEventListener('click', () => {
         isSpinning = false;
         spinBtn.disabled = false;
         fetchBtn.disabled = false;
-        showWinner(participants[winnerIndex]);
+        showWinner(winner);
     }, 5000); // 5s matches CSS transition duration
 });
 
