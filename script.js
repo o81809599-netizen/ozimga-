@@ -14,6 +14,7 @@ const closeModalBtn = document.getElementById('closeModalBtn');
 // Variables
 let participants = [];
 let displayParticipants = [];
+let loadedCommentsCount = 0;
 let currentRotation = 0;
 let isSpinning = false;
 let wheelColors = ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#8b5cf6', '#6366f1', '#3b82f6', '#0ea5e9'];
@@ -98,6 +99,35 @@ function drawWheel() {
 // Initial draw
 drawWheel();
 
+// Load Comments Function for Infinite Scroll
+function loadMoreComments(count = 50) {
+    if (loadedCommentsCount >= participants.length) return;
+    
+    const end = Math.min(loadedCommentsCount + count, participants.length);
+    for (let i = loadedCommentsCount; i < end; i++) {
+        const p = participants[i];
+        const div = document.createElement('div');
+        div.className = 'comment-item';
+        div.innerHTML = `
+            <div class="avatar">${p.initial}</div>
+            <div class="comment-content">
+                <div class="comment-author">@${p.name}</div>
+                <div class="comment-text">${p.comment}</div>
+            </div>
+        `;
+        commentsList.appendChild(div);
+    }
+    loadedCommentsCount = end;
+}
+
+// Infinite Scroll Event Listener
+commentsList.addEventListener('scroll', () => {
+    // If scrolled to bottom (with 50px threshold)
+    if (commentsList.scrollTop + commentsList.clientHeight >= commentsList.scrollHeight - 50) {
+        loadMoreComments(50);
+    }
+});
+
 // Fetch Simulation
 fetchBtn.addEventListener('click', () => {
     const url = urlInput.value.trim();
@@ -121,8 +151,8 @@ fetchBtn.addEventListener('click', () => {
     // Simulate Network Request
     setTimeout(() => {
         participants = generateMassiveParticipants(); 
-        // Only show up to 80 on the wheel so it doesn't look like a solid color
-        displayParticipants = participants.slice(0, 80);
+        // Show up to 300 on the wheel
+        displayParticipants = participants.slice(0, 300);
         
         loadingState.classList.add('hidden');
         commentsList.classList.remove('hidden');
@@ -132,30 +162,9 @@ fetchBtn.addEventListener('click', () => {
         commentCount.textContent = formattedCount;
         if(videoCommentCount) videoCommentCount.textContent = formattedCount;
 
-        // Populate List (only first 100 to prevent browser crash, but it looks like all)
-        const displayList = participants.slice(0, 100);
-        displayList.forEach((p, i) => {
-            setTimeout(() => {
-                const div = document.createElement('div');
-                div.className = 'comment-item';
-                div.innerHTML = `
-                    <div class="avatar">${p.initial}</div>
-                    <div class="comment-content">
-                        <div class="comment-author">@${p.name}</div>
-                        <div class="comment-text">${p.comment}</div>
-                    </div>
-                `;
-                commentsList.appendChild(div);
-            }, i * 50); // Fast staggered animation
-        });
-
-        // Add a "..." item at the end
-        setTimeout(() => {
-            const div = document.createElement('div');
-            div.className = 'empty-state';
-            div.innerHTML = `... va yana ${(participants.length - 100).toLocaleString('ru-RU')} ta izoh`;
-            commentsList.appendChild(div);
-        }, 100 * 50);
+        // Populate Initial List
+        loadedCommentsCount = 0;
+        loadMoreComments(50);
 
         drawWheel();
         spinBtn.disabled = false;
